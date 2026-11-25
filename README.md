@@ -18,3 +18,8 @@ Free and non-commercial.
 - Engine: Valve's Source 1 SDK license (free distribution only).
 - Launcher code: MIT, Copyright (c) 2026 PowerSiderS.X DARK (KiLiDARK).
 - The license files ship inside the APK from build0002.
+
+## AI disclaimer
+
+CounterLAN was made with the help of AI models: Claude Opus 5.5, Claude Sonnet 5.5, Claude Haiku,
+DeepSeek V4.1 Flash 1017 and GPT Sol 6.2 (through Claude Code and DSH).
