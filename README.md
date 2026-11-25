@@ -23,3 +23,8 @@ Free and non-commercial.
 
 CounterLAN was made with the help of AI models: Claude Opus 5.5, Claude Sonnet 5.5, Claude Haiku,
 DeepSeek V4.1 Flash 1017 and GPT Sol 6.2 (through Claude Code and DSH).
+
+<p>
+  <img src="docs/ai_claude.webp" width="128" alt="Claude models">
+  <img src="docs/ai_deepseek.webp" width="128" alt="DeepSeek">
+</p>
