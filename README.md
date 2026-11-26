@@ -1,6 +1,6 @@
 # CounterLAN
 
-CounterLAN by chao91
+CounterLAN by unteach
 
 This repository hosts CounterLAN's update files (releases); the game checks it for new versions.
 
