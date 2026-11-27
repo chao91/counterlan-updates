@@ -1,0 +1,29 @@
+name: Link watchdog
+
+# Daily check of the download links on counterlan.pages.dev and dota2mobilelan.pages.dev (no AI, plain HTTP).
+# Posts to the staff Discord channel only when a link is broken, plus a weekly summary on Mondays.
+on:
+  schedule:
+    - cron: '17 1 * * *'   # every day 01:17 UTC = 09:17 in the Philippines
+  workflow_dispatch:
+    inputs:
+      report:
+        description: 'Post the summary even when everything works'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the download links
+        run: python3 .github/scripts/link_watchdog.py
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_LINKCHECK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_REPORT: ${{ inputs.report }}
