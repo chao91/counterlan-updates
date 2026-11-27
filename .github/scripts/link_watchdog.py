@@ -120,8 +120,10 @@ def run():
                         ok, why = None, 'GoFile is not checked automatically'
                     else:
                         ok, why = None, 'unknown host, not checked'
-                except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
-                    ok, why = False, f'check failed: {e}'
+                except urllib.error.HTTPError as e:   # 404 = the release is gone; other HTTP answers are hiccups/limits
+                    ok, why = (False, 'HTTP 404, not found') if e.code == 404 else (None, f'HTTP {e.code}, could not tell (not counted as broken)')
+                except (urllib.error.URLError, OSError, ValueError, KeyError) as e:   # timeout, DNS, bad JSON: not proof of a dead link
+                    ok, why = None, f'check failed ({e}), not counted as broken'
                 short = f'MEGA file {mega_handle(url)}' if mega_handle(url) else url.split('#')[0]
                 mark = {True: 'OK', False: 'BROKEN', None: 'not checked'}[ok]
                 lines.append(f'{name} {kind}: {mark} ({why}) {short}')
