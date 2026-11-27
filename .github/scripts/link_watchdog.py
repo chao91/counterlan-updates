@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -52,12 +53,18 @@ def check_mega(url):
     h = mega_handle(url)
     if not h:
         return None, 'not a MEGA file link (folder links are not checked)'
-    _, body = get('https://g.api.mega.co.nz/cs?id=1', json.dumps([{'a': 'g', 'p': h}]).encode(), {'Content-Type': 'application/json'})
-    res = json.loads(body)
-    item = res[0] if isinstance(res, list) and res else res
+    for attempt in range(2):  # -3 (try again) and -2 are MEGA hiccups, not a dead link: retry once
+        _, body = get('https://g.api.mega.co.nz/cs?id=1', json.dumps([{'a': 'g', 'p': h}]).encode(), {'Content-Type': 'application/json'})
+        res = json.loads(body)
+        item = res[0] if isinstance(res, list) and res else res
+        if item not in (-3, -2) or attempt:
+            break
+        time.sleep(10)
     if isinstance(item, dict) and item.get('s'):
         return True, f'{item["s"] / 1e9:.2f} GB'
-    return False, f'MEGA says {item} (-9 = file not found, -16 = blocked)'
+    if item == -9:
+        return False, 'MEGA says the file does not exist (-9)'
+    return None, f'MEGA answered {item}, could not tell (not counted as broken)'
 
 
 def gh_api(path):
@@ -145,7 +152,8 @@ def main():
     weekly = today.weekday() == 0 or os.environ.get('FORCE_REPORT', '').lower() == 'true'
     if broken:
         text = (f'⚠️ **Link check {today:%Y-%m-%d}: {len(broken)} problem(s)**\n' + '\n'.join(f'• {b}' for b in broken)
-                + '\n\nAll checks:\n' + '\n'.join(f'• {l}' for l in lines))
+                + '\n\nAll checks:\n' + '\n'.join(f'• {l}' for l in lines)
+                + ('\n\n' + '\n'.join(f'📥 {c}' for c in counts) if weekly and counts else ''))
     elif weekly:
         text = (f'✅ **Weekly link check {today:%Y-%m-%d}: all checked links work.**\n' + '\n'.join(f'• {l}' for l in lines)
                 + ('\n\n' + '\n'.join(f'📥 {c}' for c in counts) if counts else ''))
